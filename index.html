@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cockgotchie - Virtual Pet Game</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Courier New',monospace;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px
+  }
+  .game-container{
+    background:#2a2a2a;border-radius:20px;padding:20px;box-shadow:0 20px 40px rgba(0,0,0,.3);
+    max-width:420px;width:100%;border:4px solid #4a4a4a
+  }
+  .header{text-align:center;margin-bottom:20px}
+  .title{color:#00ff88;font-size:28px;font-weight:bold;text-shadow:2px 2px 0 #004d2a;margin-bottom:15px}
+  .nav-buttons{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+  .nav-btn{
+    background:linear-gradient(45deg,#ff6b6b,#ee5a6f);color:#fff;padding:8px 16px;text-decoration:none;
+    border-radius:15px;font-weight:bold;font-size:12px;box-shadow:0 4px 8px rgba(0,0,0,.2);transition:transform .2s
+  }
+  .nav-btn:hover{transform:translateY(-2px)}
+
+  .screen{
+    background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);
+    border:4px solid #333;border-radius:10px;height:300px;display:flex;justify-content:center;align-items:flex-end;
+    margin-bottom:20px;position:relative;overflow:hidden
+  }
+  .ground{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,#8bc34a,#689f38);border-top:3px solid #558b2f}
+  .grass{position:absolute;bottom:55px;width:100%;height:10px;background:repeating-linear-gradient(90deg,transparent,transparent 2px,#4caf50 2px,#4caf50 4px)}
+  .clouds{
+    position:absolute;top:12px;width:120%;height:44px;left:-10%;
+    background:
+      radial-gradient(ellipse 25px 15px at 30px 20px,#fff 50%,transparent 51%),
+      radial-gradient(ellipse 35px 20px at 120px 25px,#fff 50%,transparent 51%),
+      radial-gradient(ellipse 20px 12px at 260px 15px,#fff 50%,transparent 51%),
+      radial-gradient(ellipse 30px 18px at 380px 22px,#fff 50%,transparent 51%);
+    animation:cloudMove 20s linear infinite
+  }
+  @keyframes cloudMove{0%{transform:translateX(0)}100%{transform:translateX(-50px)}}
+
+  /* Peacock */
+.peacock-wrap{position:absolute;bottom:0px;left:50%;transform:translateX(-50%);z-index:10}
+
+  .peacock{
+    width:180px;height:170px;position:relative;transition:transform .25s ease,filter .25s ease,opacity .25s ease
+  }
+
+  /* Tail fan with eyes */
+  .tail{
+    position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:170px;height:110px;transform-origin:bottom center;
+    pointer-events:none
+  }
+  .feather{
+    position:absolute;bottom:0;left:50%;transform-origin:bottom center;transform:translateX(-50%);
+    width:22px;height:88px;border-radius:16px 16px 0 0;
+    background:linear-gradient(180deg,#0b2e6d 0%,#14509a 55%,#1aa0b8 100%);
+    box-shadow:inset 0 -10px 16px rgba(0,0,0,.15)
+  }
+  /* Eye-spot */
+  .feather:after{
+    content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:16px;height:16px;border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, #1fbdd2 0 35%, #0e3d7a 36% 65%, transparent 66% 100%),
+      radial-gradient(circle at 50% 50%, rgba(255,215,0,.95) 0 48%, transparent 49% 100%)
+  }
+
+  /* Fan angles (15 feathers) */
+  .feather:nth-child(1){transform:translateX(-50%) rotate(-60deg)}
+  .feather:nth-child(2){transform:translateX(-50%) rotate(-52deg)}
+  .feather:nth-child(3){transform:translateX(-50%) rotate(-44deg)}
+  .feather:nth-child(4){transform:translateX(-50%) rotate(-36deg)}
+  .feather:nth-child(5){transform:translateX(-50%) rotate(-28deg)}
+  .feather:nth-child(6){transform:translateX(-50%) rotate(-20deg)}
+  .feather:nth-child(7){transform:translateX(-50%) rotate(-12deg)}
+  .feather:nth-child(8){transform:translateX(-50%) rotate(-4deg)}
+  .feather:nth-child(9){transform:translateX(-50%) rotate(4deg)}
+  .feather:nth-child(10){transform:translateX(-50%) rotate(12deg)}
+  .feather:nth-child(11){transform:translateX(-50%) rotate(20deg)}
+  .feather:nth-child(12){transform:translateX(-50%) rotate(28deg)}
+  .feather:nth-child(13){transform:translateX(-50%) rotate(36deg)}
+  .feather:nth-child(14){transform:translateX(-50%) rotate(44deg)}
+  .feather:nth-child(15){transform:translateX(-50%) rotate(52deg)}
+
+  /* Tail state mods */
+  .peacock .tail{filter:saturate(1)}
+  .peacock.is-happy .tail{animation:tailPulse 2.8s ease-in-out infinite}
+  .peacock.is-sad .tail{opacity:.85}
+  .peacock.is-hungry .tail{opacity:.75;filter:saturate(.85)}
+  .peacock.is-starving .tail{opacity:.6;filter:grayscale(.2) saturate(.7)}
+  .peacock.is-sleeping .tail{opacity:.6;filter:saturate(.7)}
+  .peacock.is-sick .tail{filter:hue-rotate(40deg) saturate(.8)}
+  .peacock.is-dead .tail{opacity:.2;filter:grayscale(1)}
+  @keyframes tailPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
+
+  /* Body */
+  .body{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    width:74px;height:92px;border-radius:46% 46% 50% 50%;
+    background:linear-gradient(135deg,#1e3c72 0%,#2a5298 55%,#3f7cac 100%);
+    box-shadow:inset 0 0 12px rgba(255,255,255,.18)
+  }
+  /* Belly for hunger anim */
+  .belly{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:48px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), transparent 60%)}
+  .peacock.is-hungry .belly{animation:tummyRum 1.6s ease-in-out infinite}
+  .peacock.is-starving .belly{animation:tummyRumFast 1s ease-in-out infinite}
+  @keyframes tummyRum{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
+  @keyframes tummyRumFast{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.08)}}
+
+  /* Neck + Head */
+  .neck{
+    position:absolute;bottom:88px;left:50%;transform:translateX(-50%);
+    width:26px;height:62px;border-radius:16px;background:linear-gradient(180deg,#2a5298,#1e3c72)
+  }
+  .head{
+    position:absolute;bottom:142px;left:50%;transform:translateX(-50%);
+    width:38px;height:38px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#4f9cf9 0%,#2a5298 60%,#1e3c72 100%);
+    box-shadow:0 2px 8px rgba(0,0,0,.3)
+  }
+  .crest{
+    position:absolute;bottom:178px;left:50%;transform:translateX(-50%);
+    width:28px;height:16px;
+    background:
+      radial-gradient(circle 2px at 6px 2px,#00d4aa,transparent 3px),
+      radial-gradient(circle 2px at 14px 0px,#ff6b6b,transparent 3px),
+      radial-gradient(circle 2px at 22px 2px,#ffa500,transparent 3px)
+  }
+  .beak{
+    position:absolute;bottom:154px;left:calc(50% + 18px);
+    width:0;height:0;border-left:10px solid #ffa500;border-top:4px solid transparent;border-bottom:4px solid transparent
+  }
+
+  /* Eye */
+  .eye{
+    position:absolute;bottom:156px;left:calc(50% + 6px);width:8px;height:8px;border-radius:50%;background:#000
+  }
+  .eye:after{content:"";position:absolute;width:3px;height:3px;border-radius:50%;right:1px;top:1px;background:#fff}
+  /* Eyelid (sleep) */
+  .eyelid{
+    position:absolute;bottom:158px;left:calc(50% + 5px);width:10px;height:6px;border-radius:6px;background:#333;opacity:0;transition:opacity .2s
+  }
+  .peacock.is-sleeping .eyelid{opacity:1}
+  /* X-eye (dead) */
+  .eye-x{position:absolute;bottom:156px;left:calc(50% + 5px);width:12px;height:12px;opacity:0}
+  .eye-x:before,.eye-x:after{content:"";position:absolute;left:0;top:5px;width:12px;height:2px;background:#111;transform:rotate(45deg)}
+  .eye-x:after{transform:rotate(-45deg)}
+  .peacock.is-dead .eye{opacity:0}
+  .peacock.is-dead .eye-x{opacity:1}
+
+  /* Legs */
+  .legs{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:36px;height:18px}
+  .leg{position:absolute;bottom:0;width:3px;height:18px;background:#ffa500}
+  .leg:nth-child(1){left:8px}
+  .leg:nth-child(2){right:8px}
+  .leg:after{content:"";position:absolute;bottom:-3px;left:-2px;width:9px;height:2px;background:#ffa500;border-radius:0 0 50% 50%}
+
+  /* Dirt splats */
+  .dirt{
+    position:absolute;bottom:46px;left:50%;transform:translateX(-50%);
+    width:70px;height:24px;border-radius:12px;background:rgba(80,48,18,.9);filter:blur(.4px);opacity:0;transition:opacity .2s
+  }
+  .peacock.is-dirty .dirt{opacity:1}
+  .dirt:after,.dirt:before{
+    content:"";position:absolute;border-radius:50%;background:rgba(85,52,20,.9)
+  }
+  .dirt:after{width:18px;height:12px;left:8px;top:-6px}
+  .dirt:before{width:14px;height:10px;right:6px;top:-4px}
+
+  /* Global state transforms */
+  .peacock.is-happy{animation:peacockBounce 2.2s infinite}
+  .peacock.is-sad{animation:peacockSway 3s infinite;filter:grayscale(.15)}
+  .peacock.is-sick{animation:peacockShake .5s infinite;filter:hue-rotate(30deg) saturate(.8)}
+  .peacock.is-hungry .neck{transform:translateX(-50%) translateY(2px)}
+  .peacock.is-starving{filter:grayscale(.25) saturate(.8)}
+  .peacock.is-sleeping{opacity:.85}
+  .peacock.is-dead{
+    transform:rotate(-86deg) translateY(24px);
+    filter:grayscale(1) brightness(.8);opacity:.95
+  }
+
+  @keyframes peacockBounce{0%,20%,50%,80%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-12px) scale(1.03)}60%{transform:translateY(-4px) scale(1.01)}}
+  @keyframes peacockSway{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+  @keyframes peacockShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+
+  /* Zzz */
+  .zzz{position:absolute;bottom:180px;left:calc(50% + 34px);font-size:14px;opacity:0;pointer-events:none}
+  .peacock.is-sleeping .zzz{animation:zz 2s ease-in-out infinite}
+  @keyframes zz{0%{opacity:0;transform:translateY(0)}50%{opacity:1;transform:translateY(-12px)}100%{opacity:0;transform:translateY(-24px)}}
+
+  /* Message and age/state badges */
+  .message{
+    position:absolute;top:10px;left:10px;right:10px;background:rgba(0,0,0,.8);color:#fff;padding:8px;border-radius:8px;
+    font-size:12px;text-align:center;opacity:0;transition:opacity .3s;z-index:20
+  }
+  .message.show{opacity:1}
+.age-display{
+  position:absolute; right:10px; bottom:12px;
+  background:rgba(0,255,136,0.2); color:#00ff88;
+  padding:4px 8px; border-radius:8px; font-size:11px;
+  border:1px solid #00ff88; z-index:20
+}
+  .state-badge{
+    position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);color:#fff;padding:4px 8px;border-radius:8px;font-size:11px;z-index:20
+  }
+
+  /* Rain */
+  .rain{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:linear-gradient(transparent 0%,rgba(135,206,235,.1) 50%,transparent 100%),
+               repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(135,206,235,.3) 2px,rgba(135,206,235,.3) 3px);
+    animation:rain .3s linear infinite;opacity:0
+  }
+  @keyframes rain{0%{background-position:0 0}100%{background-position:0 10px}}
+
+  .status-bars{margin-bottom:20px}
+  .status-item{margin-bottom:10px}
+  .status-label{color:#fff;font-size:14px;margin-bottom:5px;display:flex;justify-content:space-between}
+  .status-bar{background:#333;height:20px;border-radius:10px;overflow:hidden;border:2px solid #555}
+  .status-fill{height:100%;transition:width .5s ease;border-radius:8px}
+  .hunger-fill{background:linear-gradient(90deg,#ff4757,#ff6b8a)}
+  .happiness-fill{background:linear-gradient(90deg,#ffa502,#ffdd59)}
+  .health-fill{background:linear-gradient(90deg,#2ed573,#7bed9f)}
+
+  .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .control-btn{
+    background:linear-gradient(45deg,#4834d4,#686de0);color:#fff;border:none;padding:15px 10px;border-radius:15px;
+    font-weight:bold;font-size:12px;cursor:pointer;transition:all .2s;box-shadow:0 4px 8px rgba(0,0,0,.2)
+  }
+  .control-btn:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.3)}
+  .control-btn:active{transform:translateY(0)}
+
+  /* Particles and hearts */
+  .heart{position:absolute;font-size:20px;color:#ff6b6b;animation:floatHeart 2s ease-out forwards;pointer-events:none}
+  @keyframes floatHeart{0%{transform:translateY(0) scale(0);opacity:1}50%{transform:translateY(-30px) scale(1);opacity:1}100%{transform:translateY(-60px) scale(0);opacity:0}}
+  .particle{position:absolute;border-radius:50%;pointer-events:none;animation:particleFloat 3s ease-out forwards}
+  @keyframes particleFloat{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-50px) rotate(360deg);opacity:0}}
+
+  @media(max-width:480px){
+    .game-container{max-width:360px;padding:16px}
+    .title{font-size:24px}
+    .screen{height:260px}
+    .peacock{width:160px;height:150px}
+    .controls{gap:8px}
+    .control-btn{padding:12px 8px;font-size:11px}
+  }
+</style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="header">
+      <h1 class="title">🦚 Cockgotchie</h1>
+      <div class="nav-buttons">
+        <a href="#buy" class="nav-btn">💰 Buy</a>
+        <a href="#twitter" class="nav-btn">🐦 Twitter</a>
+      </div>
+    </div>
+
+    <div class="screen" id="screen">
+      <div class="clouds"></div>
+      <div class="state-badge" id="stateBadge">State: Happy</div>
+      <div class="message" id="message"></div>
+      <div class="age-display" id="age">Age: 0 days</div>
+
+      <div class="peacock-wrap">
+        <div class="peacock" id="peacock">
+          <div class="tail" aria-hidden="true">
+            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+            <div class="feather"></div><div class="feather"></div><div class="feather"></div>
+          </div>
+
+          <div class="body"></div>
+          <div class="belly"></div>
+          <div class="neck"></div>
+          <div class="head"></div>
+          <div class="crest"></div>
+          <div class="beak"></div>
+          <div class="eye"></div>
+          <div class="eyelid"></div>
+          <div class="eye-x"></div>
+
+          <div class="legs">
+            <div class="leg"></div>
+            <div class="leg"></div>
+          </div>
+
+          <div class="dirt" aria-hidden="true"></div>
+          <div class="zzz">Z z z</div>
+        </div>
+      </div>
+
+      <div class="grass"></div>
+      <div class="ground"></div>
+    </div>
+
+    <div class="status-bars">
+      <div class="status-item">
+        <div class="status-label"><span>🍎 Hunger</span><span id="hungerValue">100</span></div>
+        <div class="status-bar"><div class="status-fill hunger-fill" id="hungerBar" style="width:100%"></div></div>
+      </div>
+      <div class="status-item">
+        <div class="status-label"><span>😊 Happiness</span><span id="happinessValue">100</span></div>
+        <div class="status-bar"><div class="status-fill happiness-fill" id="happinessBar" style="width:100%"></div></div>
+      </div>
+      <div class="status-item">
+        <div class="status-label"><span>💚 Health</span><span id="healthValue">100</span></div>
+        <div class="status-bar"><div class="status-fill health-fill" id="healthBar" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" onclick="feedPeacock()">🍎 Feed</button>
+      <button class="control-btn" onclick="playWithPeacock()">🎮 Play</button>
+      <button class="control-btn" onclick="healPeacock()">💊 Medicine</button>
+      <button class="control-btn" onclick="cleanPeacock()">🧽 Clean</button>
+      <button class="control-btn" onclick="petPeacock()">👋 Pet</button>
+      <button class="control-btn" onclick="putToSleep()">😴 Sleep</button>
+    </div>
+  </div>
+
+<script>
+class Cockgotchie {
+  constructor(){
+    this.stats = { hunger:100, happiness:100, health:100, age:0, sleeping:false, sick:false, dirty:false };
+    this.peacockEl = document.getElementById('peacock');
+    this.messageEl = document.getElementById('message');
+    this.ageEl = document.getElementById('age');
+    this.screenEl = document.getElementById('screen');
+    this.stateBadge = document.getElementById('stateBadge');
+    this.dead = false;
+
+    this.init();
+  }
+
+  init(){
+    this.updateDisplay();
+    this.updatePeacockState();
+    this.showMessage("Hello! I'm your Cockgotchie peacock! 🦚");
+    this.createParticles();
+    this.startLifeCycle();
+  }
+
+  /* Cosmetic particles */
+  createParticles(){
+    setInterval(()=>{
+      if(this.dead) return;
+      if(Math.random() < 0.3 && this.stats.happiness > 70){ this.createHeart(); }
+      if(Math.random() < 0.2){ this.createSparkle(); }
+    }, 2000);
+  }
+  createHeart(){
+    const heart = document.createElement('div');
+    heart.className = 'heart'; heart.textContent = '💖';
+    heart.style.left = (Math.random()*80+10)+'%';
+    heart.style.bottom = '90px';
+    this.screenEl.appendChild(heart);
+    setTimeout(()=>heart.remove(), 2000);
+  }
+  createSparkle(){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = (Math.random()*6+3)|0;
+    p.style.width = s+'px'; p.style.height = s+'px';
+    p.style.background = ['#ffeb3b','#e91e63','#00bcd4','#4caf50'][Math.floor(Math.random()*4)];
+    p.style.left = (Math.random()*90+5)+'%';
+    p.style.bottom = (Math.random()*120+60)+'px';
+    this.screenEl.appendChild(p);
+    setTimeout(()=>p.remove(),3000);
+  }
+
+  startLifeCycle(){
+    // Tick
+    this.tickTimer = setInterval(()=>{
+      if(this.dead) return;
+
+      if(!this.stats.sleeping){
+        this.stats.hunger = Math.max(0, this.stats.hunger - 0.8);
+        this.stats.happiness = Math.max(0, this.stats.happiness - 0.4);
+        // Health down faster if hungry/unhappy
+        if(this.stats.hunger < 30 || this.stats.happiness < 30){
+          this.stats.health = Math.max(0, this.stats.health - 0.8);
+        } else {
+          this.stats.health = Math.max(0, this.stats.health - 0.12);
+        }
+      } else {
+        // Recover while sleeping
+        this.stats.health = Math.min(100, this.stats.health + 0.22);
+        this.stats.happiness = Math.min(100, this.stats.happiness + 0.12);
+        this.stats.hunger = Math.max(0, this.stats.hunger - 0.35);
+      }
+
+      if(this.stats.health <= 0 && !this.dead){
+        this.dead = true;
+        this.updatePeacockState();
+        this.showMessage("... 🪦 Your peacock has died.");
+      }
+
+      this.updateDisplay();
+      this.updatePeacockState();
+    }, 1000);
+
+    // Age
+    this.ageTimer = setInterval(()=>{
+      if(this.dead) return;
+      this.stats.age++;
+      this.updateDisplay();
+      if(this.stats.age % 10 === 0){
+        this.showMessage(`I'm ${this.stats.age} days old now! 🎂`);
+        this.createCelebration();
+      }
+    }, 8000);
+
+    // Random events
+    this.randTimer = setInterval(()=>{
+      if(this.dead) return;
+      this.randomEvent();
+    }, 20000);
+
+    // Weather
+    this.weatherTimer = setInterval(()=>{
+      if(this.dead) return;
+      this.weatherEffect();
+    }, 30000);
+  }
+
+  createCelebration(){
+    for(let i=0;i<5;i++){
+      setTimeout(()=>{ this.createHeart(); this.createSparkle(); }, i*200);
+    }
+  }
+
+  weatherEffect(){
+    if(Math.random() < 0.3){
+      const rain = document.createElement('div');
+      rain.className = 'rain'; rain.style.opacity = '1';
+      this.screenEl.appendChild(rain);
+      this.stats.happiness = Math.max(0, this.stats.happiness - 10);
+      this.showMessage("Oh no! It's raining! I don't like getting wet! ☔");
+      setTimeout(()=>{
+        rain.style.opacity = '0';
+        setTimeout(()=>rain.remove(), 1000);
+      }, 5000);
+    }
+  }
+
+  updateDisplay(){
+    // Bars
+    document.getElementById('hungerBar').style.width = this.stats.hunger + '%';
+    document.getElementById('happinessBar').style.width = this.stats.happiness + '%';
+    document.getElementById('healthBar').style.width = this.stats.health + '%';
+
+    // Numbers
+    document.getElementById('hungerValue').textContent = Math.round(this.stats.hunger);
+    document.getElementById('happinessValue').textContent = Math.round(this.stats.happiness);
+    document.getElementById('healthValue').textContent = Math.round(this.stats.health);
+
+    // Age
+    this.ageEl.textContent = `Age: ${this.stats.age} days`;
+  }
+
+  stateText(){
+    if(this.dead) return 'Dead';
+    if(this.stats.sleeping) return 'Sleeping';
+    if(this.stats.hunger < 10) return 'Starving';
+    if(this.stats.hunger < 25) return 'Hungry';
+    if(this.stats.dirty) return 'Dirty';
+    if(this.stats.health < 30) return 'Sick';
+    if(this.stats.happiness > 70 && this.stats.hunger > 50 && this.stats.health > 50) return 'Happy';
+    return 'Neutral';
+  }
+
+  updatePeacockState(){
+    const el = this.peacockEl;
+    el.className = 'peacock'; // reset
+
+    if(this.dead){
+      el.classList.add('is-dead');
+      this.stateBadge.textContent = 'State: Dead';
+      return;
+    }
+
+    // Dirty visible layer handled by CSS class
+    if(this.stats.sleeping) el.classList.add('is-sleeping');
+    if(this.stats.health < 30) el.classList.add('is-sick');
+    if(this.stats.dirty) el.classList.add('is-dirty');
+
+    if(this.stats.hunger < 10){
+      el.classList.add('is-starving');
+    } else if(this.stats.hunger < 25){
+      el.classList.add('is-hungry');
+    }
+
+    if(!this.stats.sleeping && this.stats.health >= 30){
+      if(this.stats.happiness > 70 && this.stats.hunger > 50){
+        el.classList.add('is-happy');
+      } else if(this.stats.hunger < 50 || this.stats.happiness < 50){
+        el.classList.add('is-sad');
+      }
+    }
+
+    this.stateBadge.textContent = `State: ${this.stateText()}`;
+  }
+
+  showMessage(text){
+    const m = this.messageEl;
+    m.textContent = text;
+    m.classList.add('show');
+    setTimeout(()=>m.classList.remove('show'), 3000);
+  }
+
+  /* Actions */
+  feed(){
+    if(this.dead) return;
+    if(this.stats.sleeping){ this.showMessage("Shh! I'm sleeping peacefully! 😴"); return; }
+    this.stats.hunger = Math.min(100, this.stats.hunger + 25);
+    this.stats.happiness = Math.min(100, this.stats.happiness + 10);
+    const msgs = [
+      "Yummy! That was delicious! 🍎✨",
+      "Thanks! I feel much better! 😋",
+      "My feathers are getting shinier! 🦚",
+      "More please! *chirp* 🐦💕"
+    ];
+    this.showMessage(msgs[(Math.random()*msgs.length)|0]);
+    this.createSparkle();
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  play(){
+    if(this.dead) return;
+    if(this.stats.sleeping){ this.showMessage("Shh! I'm dreaming of dancing! 💃😴"); return; }
+    if(this.stats.hunger < 20){ this.showMessage("I'm too hungry to display my tail! 😢"); return; }
+    this.stats.happiness = Math.min(100, this.stats.happiness + 20);
+    this.stats.hunger = Math.max(0, this.stats.hunger - 8);
+    const msgs = [
+      "Watch my dance! 💃✨",
+      "Playing makes me so happy! 🎉",
+      "Behold my beautiful tail! 🦚💖",
+      "You're the best! 🥰"
+    ];
+    this.showMessage(msgs[(Math.random()*msgs.length)|0]);
+    for(let i=0;i<3;i++) setTimeout(()=>this.createHeart(), i*300);
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  heal(){
+    if(this.dead) return;
+    if(this.stats.sleeping){ this.showMessage("Medicine while I sleep... 💊😴"); }
+    this.stats.health = Math.min(100, this.stats.health + 30);
+    this.stats.happiness = Math.max(0, this.stats.happiness - 5);
+    const msgs = [
+      "Ugh, medicine tastes awful... but I feel better. 💊😷",
+      "Thanks for taking care of me! 💚",
+      "Plumage recovering its shine! ✨",
+      "Feeling healthier already! 🦚"
+    ];
+    this.showMessage(msgs[(Math.random()*msgs.length)|0]);
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  clean(){
+    if(this.dead) return;
+    if(this.stats.sleeping){ this.showMessage("Dreaming of pristine feathers... 🛁😴"); return; }
+    this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+    this.stats.health = Math.min(100, this.stats.health + 10);
+    this.stats.dirty = false;
+    const msgs = [
+      "Feathers sparkling clean! ✨🦚",
+      "I love being clean! 🛁💖",
+      "Look how my colors shine! 🌈",
+      "Perfect for a royal display! 👑"
+    ];
+    this.showMessage(msgs[(Math.random()*msgs.length)|0]);
+    for(let i=0;i<4;i++) setTimeout(()=>this.createSparkle(), i*200);
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  pet(){
+    if(this.dead) return;
+    if(this.stats.sleeping){
+      this.showMessage("*purrs softly* 😴💕");
+      this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+    } else {
+      this.stats.happiness = Math.min(100, this.stats.happiness + 12);
+      const msgs = [
+        "Your gentle touch is perfect! 👋✨",
+        "Mmm, that feels wonderful! 🥰",
+        "I feel loved! 💕",
+        "Peacocks love affection! 🐦💖"
+      ];
+      this.showMessage(msgs[(Math.random()*msgs.length)|0]);
+      this.createHeart();
+    }
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  sleep(){
+    if(this.dead) return;
+    this.stats.sleeping = !this.stats.sleeping;
+    if(this.stats.sleeping){
+      this.showMessage("Good night! Dreaming of gardens. 🌙💤");
+      this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+      this.stats.health = Math.min(100, this.stats.health + 5);
+    } else {
+      this.showMessage("Good morning! Ready to show off! 🌅✨");
+      this.stats.happiness = Math.min(100, this.stats.happiness + 10);
+      this.stats.health = Math.min(100, this.stats.health + 10);
+      this.createSparkle();
+    }
+    this.updatePeacockState(); this.updateDisplay();
+  }
+
+  randomEvent(){
+    if(this.stats.sleeping) return;
+    const events = [
+      ()=>{
+        this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+        this.showMessage("I found a mirror and admired myself! ✨🪞"); this.createSparkle();
+      },
+      ()=>{
+        this.stats.hunger = Math.max(0, this.stats.hunger - 12);
+        this.showMessage("Busy preening, forgot to eat! 🪶");
+      },
+      ()=>{
+        this.stats.happiness = Math.min(100, this.stats.happiness + 18);
+        this.showMessage("Magnificent courtship dance! 💃🦚");
+        for(let i=0;i<3;i++) setTimeout(()=>this.createHeart(), i*400);
+      },
+      ()=>{
+        if(!this.stats.dirty){
+          this.stats.dirty = true; this.stats.happiness = Math.max(0, this.stats.happiness - 8);
+          this.showMessage("Oops! Stepped in mud! 🌿💦");
+        }
+      },
+      ()=>{
+        this.stats.happiness = Math.min(100, this.stats.happiness + 12);
+        this.showMessage("A butterfly landed on my beak! 🦋"); this.createSparkle();
+      },
+      ()=>{
+        this.stats.hunger = Math.min(100, this.stats.hunger + 10);
+        this.showMessage("Found delicious berries! 🫐");
+      }
+    ];
+    if(Math.random() < 0.4){ events[(Math.random()*events.length)|0](); }
+    this.updatePeacockState(); this.updateDisplay();
+  }
+}
+
+/* Boot */
+let cockgotchie;
+window.onload = function(){ 
+  cockgotchie = new Cockgotchie();
+
+  const peacock = document.getElementById('peacock');
+  peacock.addEventListener('click', ()=>{
+    if(cockgotchie && !cockgotchie.dead && !cockgotchie.stats.sleeping) cockgotchie.pet();
+  });
+  peacock.addEventListener('mouseenter', ()=>{
+    if(cockgotchie && !cockgotchie.dead && !cockgotchie.stats.sleeping && cockgotchie.stats.happiness > 50){
+      cockgotchie.createSparkle();
+    }
+  });
+};
+
+/* Control wrappers */
+function feedPeacock(){ cockgotchie && cockgotchie.feed(); }
+function playWithPeacock(){ cockgotchie && cockgotchie.play(); }
+function healPeacock(){ cockgotchie && cockgotchie.heal(); }
+function cleanPeacock(){ cockgotchie && cockgotchie.clean(); }
+function petPeacock(){ cockgotchie && cockgotchie.pet(); }
+function putToSleep(){ cockgotchie && cockgotchie.sleep(); }
+
+/* Prevent hash reload */
+document.addEventListener('click', e=>{ if(e.target.matches('a[href^="#"]')) e.preventDefault(); });
+</script>
+</body>
+</html>
+
