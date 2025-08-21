@@ -276,55 +276,6 @@
     50%{height:58px}
   }
 
-  /* ======= EGG BURN BOX ======= */
-  .egg-burn{
-    position:absolute; right:8px; top:54px; width:140px; height:200px;
-    background:
-      radial-gradient(120px 90px at 50% 20%, rgba(255,255,255,.9), rgba(255,255,255,.6) 60%, rgba(255,255,255,.35) 100%),
-      linear-gradient(180deg,#ffffff,#f3f3f3);
-    border:3px solid #ddd; border-radius:55% 55% 50% 50% / 62% 62% 38% 38%;
-    box-shadow:0 10px 20px rgba(0,0,0,.2), inset 0 -8px 18px rgba(0,0,0,.06), inset 0 8px 14px rgba(255,255,255,.4);
-    z-index:22; padding:10px 8px 12px 8px; overflow:hidden
-  }
-  .egg-burn:before{
-    content:""; position:absolute; inset:0;
-    background:radial-gradient(60px 30px at 35% 22%, rgba(255,255,255,.9), transparent 60%);
-    border-radius:inherit; pointer-events:none
-  }
-  .egg-header{
-    text-align:center; font-weight:700; font-size:11px; color:#444; letter-spacing:.5px;
-    text-transform:uppercase; margin-top:2px
-  }
-  .egg-badge{
-    margin:6px auto 6px; width:78%; height:24px; border-radius:12px;
-    background:linear-gradient(90deg,#ff6b6b,#ffa502);
-    display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:700;
-    box-shadow:0 3px 8px rgba(0,0,0,.15)
-  }
-  .egg-metrics{font-size:11px; color:#222; line-height:1.25; text-align:center; margin-bottom:6px}
-  .egg-metrics strong{color:#e74c3c}
-  .egg-total{
-    font-size:12px; font-weight:700; color:#00a86b; text-align:center;
-    background:rgba(0,168,107,.12); border:1px solid rgba(0,168,107,.35); padding:4px 6px; border-radius:8px; margin:0 8px 6px
-  }
-  .egg-list{
-    position:absolute; left:10px; right:10px; bottom:10px; top:110px;
-    background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); border-radius:8px; padding:6px; overflow:auto
-  }
-  .burn-row{
-    display:flex; align-items:center; justify-content:space-between;
-    font-size:10px; background:#fff; padding:4px 6px; border-radius:6px; margin-bottom:4px;
-    box-shadow:0 1px 2px rgba(0,0,0,.08)
-  }
-  .burn-row b{font-size:10px; color:#555}
-  .burn-row .amt{font-weight:800; color:#e25822}
-  .egg-flare{animation:eggPulse 1.1s ease-out}
-  @keyframes eggPulse{
-    0%{transform:scale(1); box-shadow:0 10px 20px rgba(0,0,0,.2), 0 0 0 0 rgba(226,88,34,.5)}
-    50%{transform:scale(1.03); box-shadow:0 10px 22px rgba(0,0,0,.22), 0 0 0 10px rgba(226,88,34,.0)}
-    100%{transform:scale(1); box-shadow:0 10px 20px rgba(0,0,0,.2), 0 0 0 0 rgba(226,88,34,0)}
-  }
-
   @media(max-width:480px){
     .game-container{max-width:360px;padding:16px}
     .title{font-size:24px}
@@ -332,7 +283,6 @@
     .peacock{width:160px;height:150px}
     .controls{gap:8px}
     .control-btn{padding:12px 8px;font-size:11px}
-    .egg-burn{right:6px; top:50px; width:128px; height:188px}
   }
 </style>
 </head>
@@ -351,17 +301,6 @@
       <div class="state-badge" id="stateBadge">State: Happy</div>
       <div class="message" id="message"></div>
       <div class="age-display" id="age">Age: 0 days</div>
-
-      <!-- EGG BURN BOX -->
-      <div class="egg-burn" id="eggBurn">
-        <div class="egg-header">GOTCHI Burn</div>
-        <div class="egg-badge">🔥 Registry</div>
-        <div class="egg-metrics">
-          Today: <strong id="eggToday">0</strong> tokens
-        </div>
-        <div class="egg-total" id="eggTotal">Total burned: 0</div>
-        <div class="egg-list" id="eggList"></div>
-      </div>
 
       <div class="peacock-wrap" id="peacockWrap">
         <div class="peacock" id="peacock">
@@ -434,21 +373,12 @@ class Cockgotchie {
     this.screenEl = document.getElementById('screen');
     this.stateBadge = document.getElementById('stateBadge');
     this.dead = false;
-
-    /* Egg registry refs */
-    this.eggEl = document.getElementById('eggBurn');
-    this.eggTodayEl = document.getElementById('eggToday');
-    this.eggTotalEl = document.getElementById('eggTotal');
-    this.eggListEl = document.getElementById('eggList');
-    this.burnLog = this._loadBurnLog();
-
     this.init();
   }
 
   init(){
     this.updateDisplay();
     this.updatePeacockState();
-    this._updateEggUI();
     this.showMessage("Hello! I'm your Cockgotchie peacock! 🦚");
     this.createParticles();
     this.startLifeCycle();
@@ -483,21 +413,18 @@ class Cockgotchie {
   }
 
   startLifeCycle(){
-    // Tick
     this.tickTimer = setInterval(()=>{
       if(this.dead) return;
 
       if(!this.stats.sleeping){
         this.stats.hunger = Math.max(0, this.stats.hunger - 0.8);
         this.stats.happiness = Math.max(0, this.stats.happiness - 0.4);
-        // Health down faster if hungry/unhappy
         if(this.stats.hunger < 30 || this.stats.happiness < 30){
           this.stats.health = Math.max(0, this.stats.health - 0.8);
         } else {
           this.stats.health = Math.max(0, this.stats.health - 0.12);
         }
       } else {
-        // Recover while sleeping
         this.stats.health = Math.min(100, this.stats.health + 0.22);
         this.stats.happiness = Math.min(100, this.stats.happiness + 0.12);
         this.stats.hunger = Math.max(0, this.stats.hunger - 0.35);
@@ -513,25 +440,21 @@ class Cockgotchie {
       this.updatePeacockState();
     }, 1000);
 
-    // Age
     this.ageTimer = setInterval(()=>{
       if(this.dead) return;
       this.stats.age++;
       this.updateDisplay();
-      this._registerDailyBurn();  // burn registry per new day
       if(this.stats.age % 10 === 0){
         this.showMessage(`I'm ${this.stats.age} days old now! 🎂`);
         this.createCelebration();
       }
     }, 8000);
 
-    // Random events
     this.randTimer = setInterval(()=>{
       if(this.dead) return;
       this.randomEvent();
     }, 20000);
 
-    // Weather
     this.weatherTimer = setInterval(()=>{
       if(this.dead) return;
       this.weatherEffect();
@@ -566,7 +489,6 @@ class Cockgotchie {
     document.getElementById('happinessValue').textContent = Math.round(this.stats.happiness);
     document.getElementById('healthValue').textContent = Math.round(this.stats.health);
     this.ageEl.textContent = `Age: ${this.stats.age} days`;
-    this._updateEggUI();
   }
 
   stateText(){
@@ -614,7 +536,7 @@ class Cockgotchie {
     this._msgT = setTimeout(()=>m.classList.remove('show'), 3000);
   }
 
-  /* === Interaction animations (existing add-ons) === */
+  /* === Interaction animations (pure add-ons, no layout changes) === */
   _once(el, cls, ms){
     el.classList.add(cls);
     setTimeout(()=>el.classList.remove(cls), ms);
@@ -727,7 +649,7 @@ class Cockgotchie {
     if(this.dead) return;
     if(this.stats.sleeping){ this.showMessage("Shh! I'm sleeping peacefully! 😴"); return; }
     this.stats.hunger = Math.min(100, this.stats.hunger + 25);
-       this.stats.happiness = Math.min(100, this.stats.happiness + 10);
+    this.stats.happiness = Math.min(100, this.stats.happiness + 10);
     const msgs = [
       "Yummy! That was delicious! 🍎✨",
       "Thanks! I feel much better! 😋",
@@ -891,66 +813,6 @@ class Cockgotchie {
     ];
     if(Math.random() < 0.4){ events[(Math.random()*events.length)|0](); }
     this.updatePeacockState(); this.updateDisplay();
-  }
-
-  /* ===== Burn registry logic ===== */
-  _dailyBurnAmount(day){ return day * 100; } // day x 100 GOTCHI
-  _loadBurnLog(){
-    try{
-      const raw = localStorage.getItem('gotchi_burn_log');
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    }catch(e){ return []; }
-  }
-  _saveBurnLog(){ 
-    try{ localStorage.setItem('gotchi_burn_log', JSON.stringify(this.burnLog)); }catch(e){}
-  }
-  _registerDailyBurn(){
-    const day = this.stats.age;
-    if(day <= 0) { this._updateEggUI(); return; }
-    // avoid dup if already logged
-    if(this.burnLog.some(x => x.day === day)) { this._updateEggUI(); return; }
-    const amount = this._dailyBurnAmount(day);
-    const entry = { day, amount, ts: Date.now() };
-    this.burnLog.push(entry);
-    // keep only last 100 to limit storage
-    if(this.burnLog.length > 100) this.burnLog = this.burnLog.slice(-100);
-    this._saveBurnLog();
-    this._appendBurnRow(entry, true);
-    this._flareEgg();
-    this.showMessage(`Day ${day} reached. ${amount.toLocaleString()} GOTCHI burned. 🔥`);
-    this._updateEggUI();
-  }
-  _sumTotal(){
-    return this.burnLog.reduce((s,e)=>s+e.amount,0);
-  }
-  _updateEggUI(){
-    const todayAmt = this._dailyBurnAmount(this.stats.age);
-    this.eggTodayEl.textContent = (this.stats.age>0? todayAmt.toLocaleString(): '0');
-    this.eggTotalEl.textContent = `Total burned: ${this._sumTotal().toLocaleString()}`;
-    // initial fill if list empty
-    if(!this._listHydrated){
-      this.eggListEl.innerHTML = '';
-      // newest first
-      [...this.burnLog].sort((a,b)=>b.day-a.day).forEach(e=>this._appendBurnRow(e,false));
-      this._listHydrated = true;
-    }
-  }
-  _appendBurnRow(entry, prepend){
-    const row = document.createElement('div');
-    row.className = 'burn-row';
-    row.innerHTML = `<b>Day ${entry.day}</b><span class="amt">${entry.amount.toLocaleString()} 🔥</span>`;
-    if(prepend){
-      this.eggListEl.prepend(row);
-    }else{
-      this.eggListEl.appendChild(row);
-    }
-  }
-  _flareEgg(){
-    this.eggEl.classList.remove('egg-flare');
-    // force reflow to restart animation
-    void this.eggEl.offsetWidth;
-    this.eggEl.classList.add('egg-flare');
   }
 }
 
