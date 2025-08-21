@@ -43,8 +43,7 @@
   @keyframes cloudMove{0%{transform:translateX(0)}100%{transform:translateX(-50px)}}
 
   /* Peacock */
-.peacock-wrap{position:absolute;bottom:0px;left:50%;transform:translateX(-50%);z-index:10}
-
+  .peacock-wrap{position:absolute;bottom:0px;left:50%;transform:translateX(-50%);z-index:10}
   .peacock{
     width:180px;height:170px;position:relative;transition:transform .25s ease,filter .25s ease,opacity .25s ease
   }
@@ -60,7 +59,6 @@
     background:linear-gradient(180deg,#0b2e6d 0%,#14509a 55%,#1aa0b8 100%);
     box-shadow:inset 0 -10px 16px rgba(0,0,0,.15)
   }
-  /* Eye-spot */
   .feather:after{
     content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
     width:16px;height:16px;border-radius:50%;
@@ -104,7 +102,6 @@
     background:linear-gradient(135deg,#1e3c72 0%,#2a5298 55%,#3f7cac 100%);
     box-shadow:inset 0 0 12px rgba(255,255,255,.18)
   }
-  /* Belly for hunger anim */
   .belly{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:48px;height:26px;border-radius:50%;
     background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), transparent 60%)}
   .peacock.is-hungry .belly{animation:tummyRum 1.6s ease-in-out infinite}
@@ -141,12 +138,10 @@
     position:absolute;bottom:156px;left:calc(50% + 6px);width:8px;height:8px;border-radius:50%;background:#000
   }
   .eye:after{content:"";position:absolute;width:3px;height:3px;border-radius:50%;right:1px;top:1px;background:#fff}
-  /* Eyelid (sleep) */
   .eyelid{
     position:absolute;bottom:158px;left:calc(50% + 5px);width:10px;height:6px;border-radius:6px;background:#333;opacity:0;transition:opacity .2s
   }
   .peacock.is-sleeping .eyelid{opacity:1}
-  /* X-eye (dead) */
   .eye-x{position:absolute;bottom:156px;left:calc(50% + 5px);width:12px;height:12px;opacity:0}
   .eye-x:before,.eye-x:after{content:"";position:absolute;left:0;top:5px;width:12px;height:2px;background:#111;transform:rotate(45deg)}
   .eye-x:after{transform:rotate(-45deg)}
@@ -183,7 +178,6 @@
     transform:rotate(-86deg) translateY(24px);
     filter:grayscale(1) brightness(.8);opacity:.95
   }
-
   @keyframes peacockBounce{0%,20%,50%,80%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-12px) scale(1.03)}60%{transform:translateY(-4px) scale(1.01)}}
   @keyframes peacockSway{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
   @keyframes peacockShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
@@ -199,12 +193,12 @@
     font-size:12px;text-align:center;opacity:0;transition:opacity .3s;z-index:20
   }
   .message.show{opacity:1}
-.age-display{
-  position:absolute; right:10px; bottom:12px;
-  background:rgba(0,255,136,0.2); color:#00ff88;
-  padding:4px 8px; border-radius:8px; font-size:11px;
-  border:1px solid #00ff88; z-index:20
-}
+  .age-display{
+    position:absolute; right:10px; bottom:12px;
+    background:rgba(0,255,136,0.2); color:#00ff88;
+    padding:4px 8px; border-radius:8px; font-size:11px;
+    border:1px solid #00ff88; z-index:20
+  }
   .state-badge{
     position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);color:#fff;padding:4px 8px;border-radius:8px;font-size:11px;z-index:20
   }
@@ -241,6 +235,47 @@
   .particle{position:absolute;border-radius:50%;pointer-events:none;animation:particleFloat 3s ease-out forwards}
   @keyframes particleFloat{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-50px) rotate(360deg);opacity:0}}
 
+  /* Interactive add-ons (no layout changes) */
+  .item{position:absolute;font-size:22px;pointer-events:none;will-change:left,top,transform;z-index:30;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+  .splash{position:absolute;width:6px;height:6px;border-radius:50%;background:#8fd3ff;opacity:.9;will-change:left,top;z-index:25}
+
+  /* Short action animations attached and removed via JS */
+  .peacock.act-peck .head{animation:headPeck .45s ease-in-out 2}
+  .peacock.act-peck .neck{animation:neckPeck .45s ease-in-out 2}
+  @keyframes headPeck{0%,100%{bottom:142px}50%{bottom:136px}}
+  @keyframes neckPeck{0%,100%{bottom:88px}50%{bottom:84px}}
+
+  .peacock-wrap.act-hop{animation:hop .8s ease-out}
+  @keyframes hop{0%,100%{bottom:0}50%{bottom:14px}}
+
+  .tail.act-flare{animation:tailFlare 1.2s ease-out}
+  @keyframes tailFlare{
+    0%{transform:translateX(-50%) scale(1)}
+    30%{transform:translateX(-50%) scale(1.12)}
+    60%{transform:translateX(-50%) scale(1.02)}
+    100%{transform:translateX(-50%) scale(1)}
+  }
+
+  .peacock-wrap.act-shake{animation:wrapShake .5s ease-in-out}
+  @keyframes wrapShake{
+    0%,100%{margin-left:0}
+    20%{margin-left:-6px}
+    40%{margin-left:6px}
+    60%{margin-left:-4px}
+    80%{margin-left:4px}
+  }
+
+  .head.act-nuzzle{animation:headNuzzle 1s ease-in-out}
+  .neck.act-nuzzle{animation:neckNuzzle 1s ease-in-out}
+  @keyframes headNuzzle{
+    0%,100%{left:calc(50% + 6px)}
+    50%{left:calc(50% + 14px)}
+  }
+  @keyframes neckNuzzle{
+    0%,100%{height:62px}
+    50%{height:58px}
+  }
+
   @media(max-width:480px){
     .game-container{max-width:360px;padding:16px}
     .title{font-size:24px}
@@ -267,9 +302,9 @@
       <div class="message" id="message"></div>
       <div class="age-display" id="age">Age: 0 days</div>
 
-      <div class="peacock-wrap">
+      <div class="peacock-wrap" id="peacockWrap">
         <div class="peacock" id="peacock">
-          <div class="tail" aria-hidden="true">
+          <div class="tail" aria-hidden="true" id="tail">
             <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
             <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
             <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
@@ -283,7 +318,7 @@
           <div class="crest"></div>
           <div class="beak"></div>
           <div class="eye"></div>
-          <div class="eyelid"></div>
+          <div class="eyelid" id="eyelid"></div>
           <div class="eye-x"></div>
 
           <div class="legs">
@@ -330,12 +365,14 @@ class Cockgotchie {
   constructor(){
     this.stats = { hunger:100, happiness:100, health:100, age:0, sleeping:false, sick:false, dirty:false };
     this.peacockEl = document.getElementById('peacock');
+    this.peacockWrap = document.getElementById('peacockWrap');
+    this.tailEl = document.getElementById('tail');
+    this.eyelidEl = document.getElementById('eyelid');
     this.messageEl = document.getElementById('message');
     this.ageEl = document.getElementById('age');
     this.screenEl = document.getElementById('screen');
     this.stateBadge = document.getElementById('stateBadge');
     this.dead = false;
-
     this.init();
   }
 
@@ -376,21 +413,18 @@ class Cockgotchie {
   }
 
   startLifeCycle(){
-    // Tick
     this.tickTimer = setInterval(()=>{
       if(this.dead) return;
 
       if(!this.stats.sleeping){
         this.stats.hunger = Math.max(0, this.stats.hunger - 0.8);
         this.stats.happiness = Math.max(0, this.stats.happiness - 0.4);
-        // Health down faster if hungry/unhappy
         if(this.stats.hunger < 30 || this.stats.happiness < 30){
           this.stats.health = Math.max(0, this.stats.health - 0.8);
         } else {
           this.stats.health = Math.max(0, this.stats.health - 0.12);
         }
       } else {
-        // Recover while sleeping
         this.stats.health = Math.min(100, this.stats.health + 0.22);
         this.stats.happiness = Math.min(100, this.stats.happiness + 0.12);
         this.stats.hunger = Math.max(0, this.stats.hunger - 0.35);
@@ -406,7 +440,6 @@ class Cockgotchie {
       this.updatePeacockState();
     }, 1000);
 
-    // Age
     this.ageTimer = setInterval(()=>{
       if(this.dead) return;
       this.stats.age++;
@@ -417,13 +450,11 @@ class Cockgotchie {
       }
     }, 8000);
 
-    // Random events
     this.randTimer = setInterval(()=>{
       if(this.dead) return;
       this.randomEvent();
     }, 20000);
 
-    // Weather
     this.weatherTimer = setInterval(()=>{
       if(this.dead) return;
       this.weatherEffect();
@@ -451,17 +482,12 @@ class Cockgotchie {
   }
 
   updateDisplay(){
-    // Bars
     document.getElementById('hungerBar').style.width = this.stats.hunger + '%';
     document.getElementById('happinessBar').style.width = this.stats.happiness + '%';
     document.getElementById('healthBar').style.width = this.stats.health + '%';
-
-    // Numbers
     document.getElementById('hungerValue').textContent = Math.round(this.stats.hunger);
     document.getElementById('happinessValue').textContent = Math.round(this.stats.happiness);
     document.getElementById('healthValue').textContent = Math.round(this.stats.health);
-
-    // Age
     this.ageEl.textContent = `Age: ${this.stats.age} days`;
   }
 
@@ -478,25 +504,20 @@ class Cockgotchie {
 
   updatePeacockState(){
     const el = this.peacockEl;
-    el.className = 'peacock'; // reset
-
+    el.className = 'peacock';
     if(this.dead){
       el.classList.add('is-dead');
       this.stateBadge.textContent = 'State: Dead';
       return;
     }
-
-    // Dirty visible layer handled by CSS class
     if(this.stats.sleeping) el.classList.add('is-sleeping');
     if(this.stats.health < 30) el.classList.add('is-sick');
     if(this.stats.dirty) el.classList.add('is-dirty');
-
     if(this.stats.hunger < 10){
       el.classList.add('is-starving');
     } else if(this.stats.hunger < 25){
       el.classList.add('is-hungry');
     }
-
     if(!this.stats.sleeping && this.stats.health >= 30){
       if(this.stats.happiness > 70 && this.stats.hunger > 50){
         el.classList.add('is-happy');
@@ -504,7 +525,6 @@ class Cockgotchie {
         el.classList.add('is-sad');
       }
     }
-
     this.stateBadge.textContent = `State: ${this.stateText()}`;
   }
 
@@ -512,10 +532,119 @@ class Cockgotchie {
     const m = this.messageEl;
     m.textContent = text;
     m.classList.add('show');
-    setTimeout(()=>m.classList.remove('show'), 3000);
+    clearTimeout(this._msgT);
+    this._msgT = setTimeout(()=>m.classList.remove('show'), 3000);
   }
 
-  /* Actions */
+  /* === Interaction animations (pure add-ons, no layout changes) === */
+  _once(el, cls, ms){
+    el.classList.add(cls);
+    setTimeout(()=>el.classList.remove(cls), ms);
+  }
+  _getBeakPoint(){
+    const beak = this.peacockEl.querySelector('.beak').getBoundingClientRect();
+    const screen = this.screenEl.getBoundingClientRect();
+    return {
+      x: beak.left - screen.left + beak.width*0.2,
+      y: beak.top - screen.top + beak.height*0.5
+    };
+  }
+  _animateEmojiToBeak(emoji, {startX=24, startY=null, duration=900}={}){
+    return new Promise(res=>{
+      const item = document.createElement('div');
+      item.className = 'item';
+      item.textContent = emoji;
+      const screen = this.screenEl.getBoundingClientRect();
+      const groundY = screen.height - 76;
+      item.style.left = startX+'px';
+      item.style.top = (startY==null? groundY : startY)+'px';
+      this.screenEl.appendChild(item);
+
+      const P0 = {x:startX, y:(startY==null? groundY : startY)};
+      const P2 = this._getBeakPoint();
+      const cx = (P0.x + P2.x)/2;
+      const cy = Math.min(P0.y, P2.y) - 120; // nice arc
+      const P1 = {x:cx, y:cy};
+
+      const t0 = performance.now();
+      const ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t; // easeInOutQuad
+
+      const step = (now)=>{
+        let t = (now - t0)/duration;
+        if(t>1) t=1;
+        const te = ease(t);
+        const x = (1-te)*(1-te)*P0.x + 2*(1-te)*te*P1.x + te*te*P2.x;
+        const y = (1-te)*(1-te)*P0.y + 2*(1-te)*te*P1.y + te*te*P2.y;
+        item.style.left = x+'px';
+        item.style.top = y+'px';
+        if(t<1){
+          requestAnimationFrame(step);
+        }else{
+          item.remove();
+          res();
+        }
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  _crumbs(){
+    for(let i=0;i<4;i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const s = 3+Math.random()*4;
+      p.style.width = s+'px'; p.style.height = s+'px';
+      p.style.background = '#ffb74d';
+      const bp = this._getBeakPoint();
+      p.style.left = (bp.x + (Math.random()*14-7))+'px';
+      p.style.top = (bp.y + (Math.random()*6-3))+'px';
+      this.screenEl.appendChild(p);
+      setTimeout(()=>p.remove(), 1200);
+    }
+  }
+  _butterflyPlay(){
+    const item = document.createElement('div');
+    item.className = 'item'; item.textContent = '🦋';
+    const scr = this.screenEl.getBoundingClientRect();
+    const y = scr.height - 140;
+    item.style.left = '8px'; item.style.top = y+'px';
+    this.screenEl.appendChild(item);
+    const targetX = scr.width - 36;
+    const dur = 1200;
+    const t0 = performance.now();
+    const step = (now)=>{
+      let t = (now - t0)/dur; if(t>1) t=1;
+      const x = 8 + (targetX-8)*t;
+      const yOsc = y + Math.sin(t*Math.PI*2)*18;
+      item.style.left = x+'px'; item.style.top = yOsc+'px';
+      if(t<1) requestAnimationFrame(step); else setTimeout(()=>item.remove(), 100);
+    };
+    requestAnimationFrame(step);
+  }
+  _waterClean(){
+    const scr = this.screenEl.getBoundingClientRect();
+    for(let i=0;i<16;i++){
+      setTimeout(()=>{
+        const d = document.createElement('div');
+        d.className = 'splash';
+        const x = 20 + Math.random()*(scr.width-40);
+        d.style.left = x+'px';
+        d.style.top = '-10px';
+        this.screenEl.appendChild(d);
+        const endY = scr.height - 70 - Math.random()*30;
+        const dur = 600 + Math.random()*300;
+        const t0 = performance.now();
+        const step = (now)=>{
+          let t = (now - t0)/dur; if(t>1) t=1;
+          const y = -10 + (endY+10)*t;
+          d.style.top = y+'px';
+          if(t<1) requestAnimationFrame(step); else d.remove();
+        };
+        requestAnimationFrame(step);
+      }, i*40);
+    }
+  }
+
+  /* Actions with animations */
   feed(){
     if(this.dead) return;
     if(this.stats.sleeping){ this.showMessage("Shh! I'm sleeping peacefully! 😴"); return; }
@@ -530,6 +659,12 @@ class Cockgotchie {
     this.showMessage(msgs[(Math.random()*msgs.length)|0]);
     this.createSparkle();
     this.updatePeacockState(); this.updateDisplay();
+
+    // Animation: food goes to beak, peck, crumbs
+    this._animateEmojiToBeak('🍎', {startX: 26, duration: 900}).then(()=>{
+      this._once(this.peacockEl,'act-peck',500);
+      this._crumbs();
+    });
   }
 
   play(){
@@ -547,6 +682,11 @@ class Cockgotchie {
     this.showMessage(msgs[(Math.random()*msgs.length)|0]);
     for(let i=0;i<3;i++) setTimeout(()=>this.createHeart(), i*300);
     this.updatePeacockState(); this.updateDisplay();
+
+    // Animation: hop + tail flare + butterfly pass
+    this._once(this.peacockWrap,'act-hop',800);
+    this._once(this.tailEl,'act-flare',1200);
+    this._butterflyPlay();
   }
 
   heal(){
@@ -562,6 +702,12 @@ class Cockgotchie {
     ];
     this.showMessage(msgs[(Math.random()*msgs.length)|0]);
     this.updatePeacockState(); this.updateDisplay();
+
+    // Animation: pill to beak, blink
+    this._animateEmojiToBeak('💊', {startX: 60, duration: 800}).then(()=>{
+      this.eyelidEl.style.opacity = '1';
+      setTimeout(()=>this.eyelidEl.style.opacity='0', 300);
+    });
   }
 
   clean(){
@@ -579,6 +725,10 @@ class Cockgotchie {
     this.showMessage(msgs[(Math.random()*msgs.length)|0]);
     for(let i=0;i<4;i++) setTimeout(()=>this.createSparkle(), i*200);
     this.updatePeacockState(); this.updateDisplay();
+
+    // Animation: water rain + shake
+    this._waterClean();
+    setTimeout(()=>this._once(this.peacockWrap,'act-shake',500), 450);
   }
 
   pet(){
@@ -596,6 +746,15 @@ class Cockgotchie {
       ];
       this.showMessage(msgs[(Math.random()*msgs.length)|0]);
       this.createHeart();
+      // Nuzzle animation
+      const head = this.peacockEl.querySelector('.head');
+      const neck = this.peacockEl.querySelector('.neck');
+      head.classList.add('act-nuzzle');
+      neck.classList.add('act-nuzzle');
+      setTimeout(()=>{
+        head.classList.remove('act-nuzzle');
+        neck.classList.remove('act-nuzzle');
+      }, 1000);
     }
     this.updatePeacockState(); this.updateDisplay();
   }
@@ -607,11 +766,16 @@ class Cockgotchie {
       this.showMessage("Good night! Dreaming of gardens. 🌙💤");
       this.stats.happiness = Math.min(100, this.stats.happiness + 5);
       this.stats.health = Math.min(100, this.stats.health + 5);
+      // Gentle settle before sleep
+      this._once(this.peacockWrap,'act-hop',600);
+      setTimeout(()=>this.eyelidEl.style.opacity='1', 400);
     } else {
       this.showMessage("Good morning! Ready to show off! 🌅✨");
       this.stats.happiness = Math.min(100, this.stats.happiness + 10);
       this.stats.health = Math.min(100, this.stats.health + 10);
       this.createSparkle();
+      this.eyelidEl.style.opacity='0';
+      this._once(this.tailEl,'act-flare',900);
     }
     this.updatePeacockState(); this.updateDisplay();
   }
