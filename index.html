@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Cockgotchie - Virtual Pet Game</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
+
+  /* ===== LAYOUT PARA COLOCAR O OVO AO LADO ===== */
   body{
     font-family:'Courier New',monospace;
     background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
     min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px
   }
+  .app-wrap{
+    display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;max-width:980px;width:100%;justify-content:center
+  }
+
   .game-container{
     background:#2a2a2a;border-radius:20px;padding:20px;box-shadow:0 20px 40px rgba(0,0,0,.3);
     max-width:420px;width:100%;border:4px solid #4a4a4a
@@ -217,7 +223,7 @@
   .status-label{color:#fff;font-size:14px;margin-bottom:5px;display:flex;justify-content:space-between}
   .status-bar{background:#333;height:20px;border-radius:10px;overflow:hidden;border:2px solid #555}
   .status-fill{height:100%;transition:width .5s ease;border-radius:8px}
-  .hunger-fill{background:linear-gradient(90deg,#ff4757,#ff6b8a)}
+  .hunger-fill{background:linear-gradient(90deg,#ff4757,#ff6b6a)}
   .happiness-fill{background:linear-gradient(90deg,#ffa502,#ffdd59)}
   .health-fill{background:linear-gradient(90deg,#2ed573,#7bed9f)}
 
@@ -276,6 +282,54 @@
     50%{height:58px}
   }
 
+  /* ======= EGG BURN PANEL (EXTERNO AO GAME) ======= */
+  .egg-panel{
+    width:280px;flex:0 0 280px;display:flex;flex-direction:column;align-items:center;gap:10px
+  }
+  .egg-burn{
+    position:relative; width:100%; padding:16px 14px 14px;
+    background:
+      radial-gradient(140px 100px at 50% 18%, rgba(255,255,255,.95), rgba(255,255,255,.75) 60%, rgba(255,255,255,.55) 100%),
+      linear-gradient(180deg,#ffffff,#f3f3f3);
+    border:3px solid #ddd;
+    border-radius:55% 55% 50% 50% / 70% 70% 40% 40%;
+    box-shadow:0 10px 20px rgba(0,0,0,.25), inset 0 -8px 18px rgba(0,0,0,.06), inset 0 8px 14px rgba(255,255,255,.5)
+  }
+  .egg-header{
+    text-align:center; font-weight:800; font-size:14px; color:#222; letter-spacing:.5px;
+    text-transform:uppercase; margin-top:4px
+  }
+  .egg-badge{
+    margin:8px auto 8px; width:88%; height:30px; border-radius:15px;
+    background:linear-gradient(90deg,#ff6b6b,#ffa502);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:800;
+    box-shadow:0 3px 8px rgba(0,0,0,.15)
+  }
+  .egg-metrics{font-size:13px; color:#111; line-height:1.35; text-align:center; margin-bottom:8px}
+  .egg-metrics strong{color:#d35400}
+  .egg-total{
+    font-size:13px; font-weight:800; color:#016b44; text-align:center;
+    background:rgba(1,107,68,.12); border:1px solid rgba(1,107,68,.35); padding:6px 8px; border-radius:10px; margin:0 6px 8px
+  }
+  .egg-list{
+    height:180px; overflow:auto; background:#ffffff; border:1px solid rgba(0,0,0,.08);
+    border-radius:10px; padding:8px; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)
+  }
+  .burn-row{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12px; background:#fff; padding:6px 8px; border-radius:8px; margin-bottom:6px;
+    box-shadow:0 1px 2px rgba(0,0,0,.08); color:#222
+  }
+  .burn-row b{font-size:12px; color:#333}
+  .burn-row .amt{font-weight:900; color:#e25822}
+  .egg-note{font-size:11px;color:#333;text-align:center;opacity:.85;margin-top:4px}
+  .egg-flare{animation:eggPulse 1.1s ease-out}
+  @keyframes eggPulse{
+    0%{transform:scale(1); box-shadow:0 10px 20px rgba(0,0,0,.25), 0 0 0 0 rgba(226,88,34,.5)}
+    50%{transform:scale(1.03); box-shadow:0 10px 22px rgba(0,0,0,.28), 0 0 0 12px rgba(226,88,34,.0)}
+    100%{transform:scale(1); box-shadow:0 10px 20px rgba(0,0,0,.25), 0 0 0 0 rgba(226,88,34,0)}
+  }
+
   @media(max-width:480px){
     .game-container{max-width:360px;padding:16px}
     .title{font-size:24px}
@@ -283,81 +337,100 @@
     .peacock{width:160px;height:150px}
     .controls{gap:8px}
     .control-btn{padding:12px 8px;font-size:11px}
+    .egg-panel{width:100%;flex:1 1 100%}
+    .egg-burn{max-width:360px;margin:0 auto}
   }
 </style>
 </head>
 <body>
-  <div class="game-container">
-    <div class="header">
-      <h1 class="title">🦚 Cockgotchie</h1>
-      <div class="nav-buttons">
-        <a href="#buy" class="nav-btn">💰 Buy</a>
-        <a href="https://x.com/cockgotchi" class="nav-btn">🐦 Twitter</a>
-      </div>
-    </div>
-
-    <div class="screen" id="screen">
-      <div class="clouds"></div>
-      <div class="state-badge" id="stateBadge">State: Happy</div>
-      <div class="message" id="message"></div>
-      <div class="age-display" id="age">Age: 0 days</div>
-
-      <div class="peacock-wrap" id="peacockWrap">
-        <div class="peacock" id="peacock">
-          <div class="tail" aria-hidden="true" id="tail">
-            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
-            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
-            <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
-            <div class="feather"></div><div class="feather"></div><div class="feather"></div>
-          </div>
-
-          <div class="body"></div>
-          <div class="belly"></div>
-          <div class="neck"></div>
-          <div class="head"></div>
-          <div class="crest"></div>
-          <div class="beak"></div>
-          <div class="eye"></div>
-          <div class="eyelid" id="eyelid"></div>
-          <div class="eye-x"></div>
-
-          <div class="legs">
-            <div class="leg"></div>
-            <div class="leg"></div>
-          </div>
-
-          <div class="dirt" aria-hidden="true"></div>
-          <div class="zzz">Z z z</div>
+  <div class="app-wrap">
+    <!-- ===== CAIXA DO GAME (inalterada em comportamento) ===== -->
+    <div class="game-container">
+      <div class="header">
+        <h1 class="title">🦚 Cockgotchie</h1>
+        <div class="nav-buttons">
+          <a href="#buy" class="nav-btn">💰 Buy</a>
+          <a href="https://x.com/cockgotchi" class="nav-btn">🐦 Twitter</a>
         </div>
       </div>
 
-      <div class="grass"></div>
-      <div class="ground"></div>
+      <div class="screen" id="screen">
+        <div class="clouds"></div>
+        <div class="state-badge" id="stateBadge">State: Happy</div>
+        <div class="message" id="message"></div>
+        <div class="age-display" id="age">Age: 0 days</div>
+
+        <div class="peacock-wrap" id="peacockWrap">
+          <div class="peacock" id="peacock">
+            <div class="tail" aria-hidden="true" id="tail">
+              <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+              <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+              <div class="feather"></div><div class="feather"></div><div class="feather"></div><div class="feather"></div>
+              <div class="feather"></div><div class="feather"></div><div class="feather"></div>
+            </div>
+
+            <div class="body"></div>
+            <div class="belly"></div>
+            <div class="neck"></div>
+            <div class="head"></div>
+            <div class="crest"></div>
+            <div class="beak"></div>
+            <div class="eye"></div>
+            <div class="eyelid" id="eyelid"></div>
+            <div class="eye-x"></div>
+
+            <div class="legs">
+              <div class="leg"></div>
+              <div class="leg"></div>
+            </div>
+
+            <div class="dirt" aria-hidden="true"></div>
+            <div class="zzz">Z z z</div>
+          </div>
+        </div>
+
+        <div class="grass"></div>
+        <div class="ground"></div>
+      </div>
+
+      <div class="status-bars">
+        <div class="status-item">
+          <div class="status-label"><span>🍎 Hunger</span><span id="hungerValue">100</span></div>
+          <div class="status-bar"><div class="status-fill hunger-fill" id="hungerBar" style="width:100%"></div></div>
+        </div>
+        <div class="status-item">
+          <div class="status-label"><span>😊 Happiness</span><span id="happinessValue">100</span></div>
+          <div class="status-bar"><div class="status-fill happiness-fill" id="happinessBar" style="width:100%"></div></div>
+        </div>
+        <div class="status-item">
+          <div class="status-label"><span>💚 Health</span><span id="healthValue">100</span></div>
+          <div class="status-bar"><div class="status-fill health-fill" id="healthBar" style="width:100%"></div></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="control-btn" onclick="feedPeacock()">🍎 Feed</button>
+        <button class="control-btn" onclick="playWithPeacock()">🎮 Play</button>
+        <button class="control-btn" onclick="healPeacock()">💊 Medicine</button>
+        <button class="control-btn" onclick="cleanPeacock()">🧽 Clean</button>
+        <button class="control-btn" onclick="petPeacock()">👋 Pet</button>
+        <button class="control-btn" onclick="putToSleep()">😴 Sleep</button>
+      </div>
     </div>
 
-    <div class="status-bars">
-      <div class="status-item">
-        <div class="status-label"><span>🍎 Hunger</span><span id="hungerValue">100</span></div>
-        <div class="status-bar"><div class="status-fill hunger-fill" id="hungerBar" style="width:100%"></div></div>
+    <!-- ===== OVO / REGISTRO DE QUEIMA (fora do game) ===== -->
+    <aside class="egg-panel" aria-label="Registro de queima GOTCHI">
+      <div class="egg-burn" id="eggBurn">
+        <div class="egg-header">🔥 GOTCHI Burn Registry</div>
+        <div class="egg-badge">Dia × 100 tokens</div>
+        <div class="egg-metrics">
+          Hoje: <strong id="eggToday">0</strong> tokens
+        </div>
+        <div class="egg-total" id="eggTotal">Total burned: 0</div>
+        <div class="egg-list" id="eggList"></div>
+        <div class="egg-note">Cada novo dia de vida da ave registra <b>dia × 100</b> GOTCHI queimados.</div>
       </div>
-      <div class="status-item">
-        <div class="status-label"><span>😊 Happiness</span><span id="happinessValue">100</span></div>
-        <div class="status-bar"><div class="status-fill happiness-fill" id="happinessBar" style="width:100%"></div></div>
-      </div>
-      <div class="status-item">
-        <div class="status-label"><span>💚 Health</span><span id="healthValue">100</span></div>
-        <div class="status-bar"><div class="status-fill health-fill" id="healthBar" style="width:100%"></div></div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="control-btn" onclick="feedPeacock()">🍎 Feed</button>
-      <button class="control-btn" onclick="playWithPeacock()">🎮 Play</button>
-      <button class="control-btn" onclick="healPeacock()">💊 Medicine</button>
-      <button class="control-btn" onclick="cleanPeacock()">🧽 Clean</button>
-      <button class="control-btn" onclick="petPeacock()">👋 Pet</button>
-      <button class="control-btn" onclick="putToSleep()">😴 Sleep</button>
-    </div>
+    </aside>
   </div>
 
 <script>
@@ -373,12 +446,21 @@ class Cockgotchie {
     this.screenEl = document.getElementById('screen');
     this.stateBadge = document.getElementById('stateBadge');
     this.dead = false;
+
+    /* Egg registry refs */
+    this.eggEl = document.getElementById('eggBurn');
+    this.eggTodayEl = document.getElementById('eggToday');
+    this.eggTotalEl = document.getElementById('eggTotal');
+    this.eggListEl = document.getElementById('eggList');
+    this.burnLog = this._loadBurnLog();
+
     this.init();
   }
 
   init(){
     this.updateDisplay();
     this.updatePeacockState();
+    this._updateEggUI();
     this.showMessage("Hello! I'm your Cockgotchie peacock! 🦚");
     this.createParticles();
     this.startLifeCycle();
@@ -413,6 +495,7 @@ class Cockgotchie {
   }
 
   startLifeCycle(){
+    // Tick
     this.tickTimer = setInterval(()=>{
       if(this.dead) return;
 
@@ -440,21 +523,25 @@ class Cockgotchie {
       this.updatePeacockState();
     }, 1000);
 
+    // Age
     this.ageTimer = setInterval(()=>{
       if(this.dead) return;
       this.stats.age++;
       this.updateDisplay();
+      this._registerDailyBurn();  // burn registry per new day
       if(this.stats.age % 10 === 0){
         this.showMessage(`I'm ${this.stats.age} days old now! 🎂`);
         this.createCelebration();
       }
     }, 8000);
 
+    // Random events
     this.randTimer = setInterval(()=>{
       if(this.dead) return;
       this.randomEvent();
     }, 20000);
 
+    // Weather
     this.weatherTimer = setInterval(()=>{
       if(this.dead) return;
       this.weatherEffect();
@@ -489,6 +576,7 @@ class Cockgotchie {
     document.getElementById('happinessValue').textContent = Math.round(this.stats.happiness);
     document.getElementById('healthValue').textContent = Math.round(this.stats.health);
     this.ageEl.textContent = `Age: ${this.stats.age} days`;
+    this._updateEggUI();
   }
 
   stateText(){
@@ -536,7 +624,7 @@ class Cockgotchie {
     this._msgT = setTimeout(()=>m.classList.remove('show'), 3000);
   }
 
-  /* === Interaction animations (pure add-ons, no layout changes) === */
+  /* === Interaction animations (add-ons) === */
   _once(el, cls, ms){
     el.classList.add(cls);
     setTimeout(()=>el.classList.remove(cls), ms);
@@ -563,11 +651,11 @@ class Cockgotchie {
       const P0 = {x:startX, y:(startY==null? groundY : startY)};
       const P2 = this._getBeakPoint();
       const cx = (P0.x + P2.x)/2;
-      const cy = Math.min(P0.y, P2.y) - 120; // nice arc
+      const cy = Math.min(P0.y, P2.y) - 120;
       const P1 = {x:cx, y:cy};
 
       const t0 = performance.now();
-      const ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t; // easeInOutQuad
+      const ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t;
 
       const step = (now)=>{
         let t = (now - t0)/duration;
@@ -660,7 +748,7 @@ class Cockgotchie {
     this.createSparkle();
     this.updatePeacockState(); this.updateDisplay();
 
-    // Animation: food goes to beak, peck, crumbs
+    // Animation: comida vai até o bico
     this._animateEmojiToBeak('🍎', {startX: 26, duration: 900}).then(()=>{
       this._once(this.peacockEl,'act-peck',500);
       this._crumbs();
@@ -683,7 +771,7 @@ class Cockgotchie {
     for(let i=0;i<3;i++) setTimeout(()=>this.createHeart(), i*300);
     this.updatePeacockState(); this.updateDisplay();
 
-    // Animation: hop + tail flare + butterfly pass
+    // Animação: pulo + flare da cauda + borboleta
     this._once(this.peacockWrap,'act-hop',800);
     this._once(this.tailEl,'act-flare',1200);
     this._butterflyPlay();
@@ -703,7 +791,7 @@ class Cockgotchie {
     this.showMessage(msgs[(Math.random()*msgs.length)|0]);
     this.updatePeacockState(); this.updateDisplay();
 
-    // Animation: pill to beak, blink
+    // Animação: pílula até o bico + piscada
     this._animateEmojiToBeak('💊', {startX: 60, duration: 800}).then(()=>{
       this.eyelidEl.style.opacity = '1';
       setTimeout(()=>this.eyelidEl.style.opacity='0', 300);
@@ -726,7 +814,7 @@ class Cockgotchie {
     for(let i=0;i<4;i++) setTimeout(()=>this.createSparkle(), i*200);
     this.updatePeacockState(); this.updateDisplay();
 
-    // Animation: water rain + shake
+    // Animação: gotas + chacoalhar
     this._waterClean();
     setTimeout(()=>this._once(this.peacockWrap,'act-shake',500), 450);
   }
@@ -746,7 +834,6 @@ class Cockgotchie {
       ];
       this.showMessage(msgs[(Math.random()*msgs.length)|0]);
       this.createHeart();
-      // Nuzzle animation
       const head = this.peacockEl.querySelector('.head');
       const neck = this.peacockEl.querySelector('.neck');
       head.classList.add('act-nuzzle');
@@ -766,7 +853,6 @@ class Cockgotchie {
       this.showMessage("Good night! Dreaming of gardens. 🌙💤");
       this.stats.happiness = Math.min(100, this.stats.happiness + 5);
       this.stats.health = Math.min(100, this.stats.health + 5);
-      // Gentle settle before sleep
       this._once(this.peacockWrap,'act-hop',600);
       setTimeout(()=>this.eyelidEl.style.opacity='1', 400);
     } else {
@@ -813,6 +899,53 @@ class Cockgotchie {
     ];
     if(Math.random() < 0.4){ events[(Math.random()*events.length)|0](); }
     this.updatePeacockState(); this.updateDisplay();
+  }
+
+  /* ===== Burn registry logic ===== */
+  _dailyBurnAmount(day){ return day * 100; } // dia × 100 GOTCHI
+  _loadBurnLog(){
+    try{
+      const raw = localStorage.getItem('gotchi_burn_log');
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  _saveBurnLog(){ 
+    try{ localStorage.setItem('gotchi_burn_log', JSON.stringify(this.burnLog)); }catch(e){}
+  }
+  _registerDailyBurn(){
+    const day = this.stats.age;
+    if(day <= 0) { this._updateEggUI(); return; }
+    if(this.burnLog.some(x => x.day === day)) { this._updateEggUI(); return; }
+    const amount = this._dailyBurnAmount(day);
+    const entry = { day, amount, ts: Date.now() };
+    this.burnLog.push(entry);
+    if(this.burnLog.length > 200) this.burnLog = this.burnLog.slice(-200);
+    this._saveBurnLog();
+    this._appendBurnRow(entry, true);
+    this._flareEgg();
+    this.showMessage(`Day ${day} reached. ${amount.toLocaleString()} GOTCHI burned. 🔥`);
+    this._updateEggUI();
+  }
+  _sumTotal(){ return this.burnLog.reduce((s,e)=>s+e.amount,0); }
+  _updateEggUI(){
+    const todayAmt = this._dailyBurnAmount(this.stats.age);
+    this.eggTodayEl.textContent = (this.stats.age>0? todayAmt.toLocaleString(): '0');
+    this.eggTotalEl.textContent = `Total burned: ${this._sumTotal().toLocaleString()}`;
+    if(!this._listHydrated){
+      this.eggListEl.innerHTML = '';
+      [...this.burnLog].sort((a,b)=>b.day-a.day).forEach(e=>this._appendBurnRow(e,false));
+      this._listHydrated = true;
+    }
+  }
+  _appendBurnRow(entry, prepend){
+    const row = document.createElement('div');
+    row.className = 'burn-row';
+    row.innerHTML = `<b>Day ${entry.day}</b><span class="amt">${entry.amount.toLocaleString()} 🔥</span>`;
+    if(prepend){ this.eggListEl.prepend(row); } else { this.eggListEl.appendChild(row); }
+  }
+  _flareEgg(){
+    this.eggEl.classList.remove('egg-flare'); void this.eggEl.offsetWidth; this.eggEl.classList.add('egg-flare');
   }
 }
 
